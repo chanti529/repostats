@@ -2,11 +2,12 @@ package commands
 
 import (
 	"errors"
-	"github.com/jfrog/jfrog-cli-core/plugins/components"
-	"github.com/jfrog/jfrog-client-go/utils/log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/jfrog/jfrog-cli-core/plugins/components"
+	"github.com/jfrog/jfrog-client-go/utils/log"
 )
 
 func GetCurlCommand() components.Command {
