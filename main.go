@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/chanti529/jfrog-cli-plugin-template/commands"
 	"github.com/jfrog/jfrog-cli-core/plugins"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
-	"github.com/chanti529/jfrog-cli-plugin-template/commands"
 )
 
 func main() {
@@ -21,5 +21,5 @@ func getApp() components.App {
 
 func getCommands() []components.Command {
 	return []components.Command{
-		commands.GetHelloCommand()}
+		commands.GetCurlCommand()}
 }
