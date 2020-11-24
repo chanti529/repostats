@@ -74,7 +74,7 @@ func repoStatDownloadCmd(c *components.Context) error {
 	// Get Target Artifactory Configuration
 	targetRtConfig, err := getTargetArtifactoryConfig(c.GetStringFlagValue("server-id"))
 	if err != nil {
-		return errors.New(fmt.Sprintf("Failed to get Artifactory configuration: %w", err))
+		return fmt.Errorf("Failed to get Artifactory configuration: %w", err)
 	}
 
 	// TODO: Set command configuration

@@ -2,8 +2,11 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/chanti529/jfrog-cli-plugin-template/util"
 	"github.com/jfrog/jfrog-cli-core/utils/config"
+	"github.com/jfrog/jfrog-client-go/utils/log"
+	"strings"
 	"time"
 )
 
@@ -50,6 +53,8 @@ func (w *statMapper) process(items []*util.AqlItem, conf *RepoStatConfiguration)
 		return
 	}
 
+	log.Debug(fmt.Sprintf("Mapper processing %v items...", len(items)))
+
 	for _, item := range items {
 
 		// TODO: Filter item
@@ -76,10 +81,13 @@ func (w *statMapper) process(items []*util.AqlItem, conf *RepoStatConfiguration)
 		}
 	}
 
+	log.Debug(fmt.Sprintf("Mapper done with %v results!", len(w.Result)))
+
 	w.Done = true
 }
 
 func waitForWorkers(workers []*statMapper) error {
+	log.Debug(fmt.Sprintf("Waiting for %v mappers to finish...", len(workers)))
 	for _, worker := range workers {
 		for !worker.Done && worker.Error == nil {
 			time.Sleep(time.Second)
@@ -88,7 +96,7 @@ func waitForWorkers(workers []*statMapper) error {
 			return worker.Error
 		}
 	}
-
+	log.Debug("Mappers done!")
 	return nil
 }
 
@@ -97,7 +105,14 @@ func getItemIdentity(item *util.AqlItem, conf *RepoStatConfiguration) (string, e
 	case "repo":
 		return item.Repo, nil
 	case "folder":
-		//TODO: Get folder identity
+		fullPath := item.GetFullPath()
+		pathParts := strings.Split(fullPath, "/")
+		//TODO: Make folder depth configurable
+		if len(pathParts) <= 4 {
+			return strings.Join(pathParts[:len(pathParts)-1], "/"), nil
+		} else {
+			return strings.Join(pathParts[:4], "/"), nil
+		}
 		return "", errors.New("Not implemented")
 	case "artifact":
 		return item.GetFullPath(), nil
@@ -109,6 +124,8 @@ func getItemIdentity(item *util.AqlItem, conf *RepoStatConfiguration) (string, e
 }
 
 func reduce(workers []*statMapper, conf *RepoStatConfiguration) ([]StatItem, error) {
+	log.Debug(fmt.Sprintf("Reducing results from %v mappers...", len(workers)))
+
 	mergedResults := workers[0].Result
 
 	// Merge workers results
@@ -132,6 +149,24 @@ func reduce(workers []*statMapper, conf *RepoStatConfiguration) ([]StatItem, err
 	}
 
 	results := sortAndLimit(conf.Sort, resultsSize, mergedResults)
+
+	// Remove empty ranking positions
+	if conf.Limit > 0 {
+		emptyIndex := -1
+		for index, item := range results {
+			if item.Id == "" {
+				emptyIndex = index
+				break
+			}
+		}
+
+		if emptyIndex > 0 {
+			results = results[:emptyIndex]
+		}
+	}
+
+	log.Debug(fmt.Sprintf("Reducing done with %v results!", len(results)))
+
 	return results, nil
 }
 

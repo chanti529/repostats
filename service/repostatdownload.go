@@ -43,7 +43,7 @@ func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	itemsCount := len(parsedResult.Results)
 
 	// TODO: Make page size configurable
-	pageSize := 500
+	pageSize := 50000
 
 	// TODO: Make number of workers configurable
 	numberOfWorkers := 5

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/chanti529/jfrog-cli-plugin-template/util"
 	"github.com/jfrog/jfrog-cli-core/artifactory/utils"
+	"github.com/jfrog/jfrog-client-go/utils/log"
 	"io/ioutil"
 )
 
@@ -27,7 +28,7 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	aql := fmt.Sprintf(aqlSizeTemplate, conf.Repos[0])
 
 	// TODO: Make page size configurable
-	pageSize := 500
+	pageSize := 50000
 
 	// TODO: Make number of workers configurable
 	numberOfWorkers := 5
@@ -75,6 +76,8 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 				<-workersLock
 			}(mapper, parsedResult.Results)
 		}
+
+		log.Debug(fmt.Sprintf("Found %v artifacts...", itemsCount))
 	}
 
 	// Wait for mappers to finish
