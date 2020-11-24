@@ -10,6 +10,7 @@ import (
 
 const (
 	//TODO: Add additional filters to AQL
+	//TODO: Support multiple repos
 	// We cannot paginate this query since it relies on fields from stat subdomain
 	aqlDownloadTemplate = `items.find({
 			"repo": "%s" 
@@ -49,19 +50,18 @@ func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	workersLock := make(chan bool, numberOfWorkers)
 
 	var mapperWorkers []*statMapper
+	getValueFunc := func(item *util.AqlItem) int {
+		return item.Stats[0].Downloads
+	}
 
 	scheduledItems := 0
 	/*
 		While there are new items, filter and map them to the requested identity
 	*/
 	for scheduledItems < itemsCount {
-		getValueFunc := func(item *util.AqlItem) int {
-			return item.Stats[0].Downloads
-		}
-		mapper := &statMapper{
-			GetValueFunc: getValueFunc,
-			Result:       make(map[string]int),
-		}
+
+		mapper := newStatMapper()
+		mapper.GetValueFunc = getValueFunc
 
 		mapperWorkers = append(mapperWorkers, mapper)
 		pageInitialIndex := scheduledItems
@@ -89,7 +89,7 @@ func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	/*
 		Reduce results from workers to their identity and apply limits
 	*/
-	repoStatsResult, err := reduce(mapperWorkers)
+	repoStatsResult, err := reduce(mapperWorkers, conf)
 	if err != nil {
 		return nil, err
 	}

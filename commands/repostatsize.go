@@ -51,7 +51,7 @@ func getRepoStatSizeFlags() []components.Flag {
 		components.StringFlag{
 			Name:         "limit",
 			Description:  `Max number or results. Set value to 0 to disable limit`,
-			DefaultValue: "5",
+			DefaultValue: "10",
 		},
 		components.StringFlag{
 			Name:         "sort",
@@ -79,6 +79,7 @@ func repoStatSizeCmd(c *components.Context) error {
 		RtDetails: targetRtConfig,
 		Type:      c.Arguments[0],
 		Repos:     strings.Split(c.GetStringFlagValue("repos"), ","),
+		Sort:      c.GetStringFlagValue("sort"),
 	}
 
 	limit, err := getIntFlagValue(c, "limit")

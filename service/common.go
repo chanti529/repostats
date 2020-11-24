@@ -7,6 +7,17 @@ import (
 	"time"
 )
 
+const (
+	TypeArtifact = "artifact"
+	TypeFolder   = "folder"
+	TypeRepo     = "repo"
+	TypeUser     = "user"
+
+	SortAlpha = "alpha"
+	SortAsc   = "asc"
+	SortDesc  = "desc"
+)
+
 type StatItem struct {
 	Id    string
 	Value int
@@ -16,6 +27,7 @@ type RepoStatConfiguration struct {
 	RtDetails *config.ArtifactoryDetails
 	Type      string
 	Repos     []string
+	Sort      string
 	Limit     int
 }
 
@@ -24,6 +36,12 @@ type statMapper struct {
 	Done         bool
 	Error        error
 	Result       map[string]int
+}
+
+func newStatMapper() *statMapper {
+	return &statMapper{
+		Result: make(map[string]int),
+	}
 }
 
 func (w *statMapper) process(items []*util.AqlItem, conf *RepoStatConfiguration) {
@@ -47,7 +65,16 @@ func (w *statMapper) process(items []*util.AqlItem, conf *RepoStatConfiguration)
 		w.Result[itemId] = w.Result[itemId] + value
 	}
 
-	// TODO: Apply sort and limit if type is artifact since it cannot be reduced any further
+	// Apply sort and limit if type is artifact since it cannot be reduced any further
+	if conf.Type == TypeArtifact && conf.Limit > 0 && conf.Limit < len(w.Result) {
+
+		workerResults := sortAndLimit(conf.Sort, conf.Limit, w.Result)
+		// Reset worker result
+		w.Result = make(map[string]int)
+		for _, item := range workerResults {
+			w.Result[item.Id] = item.Value
+		}
+	}
 
 	w.Done = true
 }
@@ -81,9 +108,10 @@ func getItemIdentity(item *util.AqlItem, conf *RepoStatConfiguration) (string, e
 	}
 }
 
-func reduce(workers []*statMapper) ([]StatItem, error) {
+func reduce(workers []*statMapper, conf *RepoStatConfiguration) ([]StatItem, error) {
 	mergedResults := workers[0].Result
 
+	// Merge workers results
 	for workerIndex := 1; workerIndex < len(workers); workerIndex++ {
 		worker := workers[workerIndex]
 
@@ -91,16 +119,65 @@ func reduce(workers []*statMapper) ([]StatItem, error) {
 		for id, value := range worker.Result {
 			mergedResults[id] = mergedResults[id] + value
 		}
+
+		// Free worker result for GC
+		worker.Result = nil
 	}
 
-	// TODO: Apply sort and limit
-	statItems := []StatItem{}
-	for id, value := range mergedResults {
-		statItems = append(statItems, StatItem{
-			Id:    id,
-			Value: value,
-		})
+	var resultsSize int
+	if conf.Limit > 0 {
+		resultsSize = conf.Limit
+	} else {
+		resultsSize = len(mergedResults)
 	}
 
-	return statItems, nil
+	results := sortAndLimit(conf.Sort, resultsSize, mergedResults)
+	return results, nil
+}
+
+func sortAndLimit(sort string, limit int, items map[string]int) []StatItem {
+	results := make([]StatItem, limit)
+
+	// Insert items at their right position in result slice
+	for id, value := range items {
+
+		var itemIndex = -1
+
+		// Find item position in results
+		for resultIndex, resultItem := range results {
+
+			// In case result position is free use it
+			if resultItem.Id == "" {
+				itemIndex = resultIndex
+				break
+			}
+
+			// Descending Sort
+			if (sort == SortDesc && value >= resultItem.Value) ||
+				// Ascending Sort
+				(sort == SortAsc && value <= resultItem.Value) ||
+				// Alphabetic Sort
+				(sort == SortAlpha && id < resultItem.Id) {
+				itemIndex = resultIndex
+				break
+			}
+		}
+
+		// If item has a position in results
+		if itemIndex > -1 {
+
+			// If item position is not last we need to shift the results at its right
+			if itemIndex != limit-1 {
+				copy(results[itemIndex+1:limit], results[itemIndex:limit-1])
+			}
+
+			// Add item to results
+			results[itemIndex] = StatItem{
+				Id:    id,
+				Value: value,
+			}
+		}
+	}
+
+	return results
 }

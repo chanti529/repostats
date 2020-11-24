@@ -10,6 +10,7 @@ import (
 
 const (
 	//TODO: Add additional filters to AQL
+	//TODO: Support multiple repos
 	aqlSizeTemplate = `items.find({
 			"repo": "%s" 
 		}).include("repo", "path", "name", "created", "modified", "modified_by", "size").sort({
@@ -63,11 +64,8 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 		itemsCount = itemsCount + itemsInPage
 
 		if itemsInPage > 0 {
-			mapper := &statMapper{
-				GetValueFunc: getValueFunc,
-				Result:       make(map[string]int),
-			}
-
+			mapper := newStatMapper()
+			mapper.GetValueFunc = getValueFunc
 			mapperWorkers = append(mapperWorkers, mapper)
 
 			// Start mappers in parallel
@@ -88,7 +86,7 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	/*
 		Reduce results from workers to their identity and apply limits
 	*/
-	repoStatsResult, err := reduce(mapperWorkers)
+	repoStatsResult, err := reduce(mapperWorkers, conf)
 	if err != nil {
 		return nil, err
 	}
