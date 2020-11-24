@@ -60,6 +60,7 @@ func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	*/
 	for scheduledItems < itemsCount {
 
+		// Start mappers in background for each page
 		mapper := newStatMapper()
 		mapper.GetValueFunc = getValueFunc
 
@@ -70,7 +71,6 @@ func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 			pageFinalIndex = itemsCount
 		}
 
-		// Start mappers in parallel
 		workersLock <- true
 		go func(m *statMapper, initialIndex, finalIndex int) {
 			m.process(parsedResult.Results[initialIndex:finalIndex], conf)

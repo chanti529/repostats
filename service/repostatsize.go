@@ -65,11 +65,12 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 		itemsCount = itemsCount + itemsInPage
 
 		if itemsInPage > 0 {
+
+			// Start mappers in background
 			mapper := newStatMapper()
 			mapper.GetValueFunc = getValueFunc
 			mapperWorkers = append(mapperWorkers, mapper)
 
-			// Start mappers in parallel
 			workersLock <- true
 			go func(m *statMapper, items []*util.AqlItem) {
 				m.process(items, conf)
