@@ -12,7 +12,9 @@ const (
 	//TODO: Add additional filters to AQL
 	aqlSizeTemplate = `items.find({
 			"repo": "%s" 
-		}).include("repo", "path", "name", "modified", "modified_by", "size")`
+		}).include("repo", "path", "name", "created", "modified", "modified_by", "size").sort({
+			"$asc":["created"]
+		})`
 )
 
 func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
@@ -23,24 +25,6 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 
 	aql := fmt.Sprintf(aqlSizeTemplate, conf.Repos[0])
 
-	// TODO: Paginate query for size command
-	reader, err := servicesManager.Aql(aql)
-	if err != nil {
-		return nil, err
-	}
-	defer reader.Close()
-	result, err := ioutil.ReadAll(reader)
-	if err != nil {
-		return nil, err
-	}
-
-	parsedResult := new(util.AqlResult)
-	if err = json.Unmarshal(result, parsedResult); err != nil {
-		return nil, err
-	}
-
-	itemsCount := len(parsedResult.Results)
-
 	// TODO: Make page size configurable
 	pageSize := 500
 
@@ -49,35 +33,50 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	workersLock := make(chan bool, numberOfWorkers)
 
 	var mapperWorkers []*statMapper
+	getValueFunc := func(item *util.AqlItem) int {
+		return item.Size
+	}
 
-	scheduledItems := 0
-	/*
-		While there are new items, filter and map them to the requested identity
-	*/
-	for scheduledItems < itemsCount {
-		getValueFunc := func(item *util.AqlItem) int {
-			return item.Size
+	itemsCount := 0
+	// Set itemsInPage with pageSize to force first page to be fetched
+	itemsInPage := pageSize
+	for itemsInPage == pageSize {
+
+		// Query page results
+		pageAql := fmt.Sprintf("%s.offset(%v).limit(%v)", aql, itemsCount, pageSize)
+		reader, err := servicesManager.Aql(pageAql)
+		if err != nil {
+			return nil, err
 		}
-		mapper := &statMapper{
-			GetValueFunc: getValueFunc,
-			Result:       make(map[string]int),
+		defer reader.Close()
+		result, err := ioutil.ReadAll(reader)
+		if err != nil {
+			return nil, err
 		}
 
-		mapperWorkers = append(mapperWorkers, mapper)
-		pageInitialIndex := scheduledItems
-		pageFinalIndex := scheduledItems + pageSize
-		if pageFinalIndex > itemsCount {
-			pageFinalIndex = itemsCount
+		parsedResult := new(util.AqlResult)
+		if err = json.Unmarshal(result, parsedResult); err != nil {
+			return nil, err
 		}
 
-		// Start mappers in parallel
-		workersLock <- true
-		go func(m *statMapper, initialIndex, finalIndex int) {
-			m.process(parsedResult.Results[initialIndex:finalIndex], conf)
-			<-workersLock
-		}(mapper, pageInitialIndex, pageFinalIndex)
+		itemsInPage = len(parsedResult.Results)
+		itemsCount = itemsCount + itemsInPage
 
-		scheduledItems = scheduledItems + pageSize
+		if itemsInPage > 0 {
+			mapper := &statMapper{
+				GetValueFunc: getValueFunc,
+				Result:       make(map[string]int),
+			}
+
+			mapperWorkers = append(mapperWorkers, mapper)
+
+			// Start mappers in parallel
+			workersLock <- true
+			go func(m *statMapper, items []*util.AqlItem) {
+				m.process(items, conf)
+				<-workersLock
+			}(mapper, parsedResult.Results)
+		}
 	}
 
 	// Wait for mappers to finish
