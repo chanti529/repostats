@@ -152,17 +152,7 @@ func reduce(workers []*statMapper, conf *RepoStatConfiguration) ([]StatItem, err
 
 	// Remove empty ranking positions
 	if conf.Limit > 0 {
-		emptyIndex := -1
-		for index, item := range results {
-			if item.Id == "" {
-				emptyIndex = index
-				break
-			}
-		}
-
-		if emptyIndex > 0 {
-			results = results[:emptyIndex]
-		}
+		results = removeEmptyPositions(results)
 	}
 
 	log.Debug(fmt.Sprintf("Reducing done with %v results!", len(results)))
@@ -214,5 +204,20 @@ func sortAndLimit(sort string, limit int, items map[string]int) []StatItem {
 		}
 	}
 
+	return results
+}
+
+func removeEmptyPositions(results []StatItem) []StatItem {
+	emptyIndex := -1
+	for index, item := range results {
+		if item.Id == "" {
+			emptyIndex = index
+			break
+		}
+	}
+
+	if emptyIndex > 0 {
+		return results[:emptyIndex]
+	}
 	return results
 }
