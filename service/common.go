@@ -6,6 +6,7 @@ import (
 	"github.com/chanti529/jfrog-cli-plugin-template/util"
 	"github.com/jfrog/jfrog-cli-core/utils/config"
 	"github.com/jfrog/jfrog-client-go/utils/log"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -27,11 +28,20 @@ type StatItem struct {
 }
 
 type RepoStatConfiguration struct {
-	RtDetails *config.ArtifactoryDetails
-	Type      string
-	Repos     []string
-	Sort      string
-	Limit     int
+	PageSize             int
+	MaxConcurrentWorkers int
+	RtDetails            *config.ArtifactoryDetails
+	Type                 string
+	MaxDepth             int
+	Repos                []string
+	Sort                 string
+	Limit                int
+	FilterPathRegexp     *regexp.Regexp
+	FilterProperties     []util.KeyValuePair
+	ModifiedFrom         time.Time
+	ModifiedTo           time.Time
+	LastDownloadedFrom   time.Time
+	LastDownloadedTo     time.Time
 }
 
 type statMapper struct {
@@ -57,7 +67,11 @@ func (w *statMapper) process(items []*util.AqlItem, conf *RepoStatConfiguration)
 
 	for _, item := range items {
 
-		// TODO: Filter item
+		if conf.FilterPathRegexp != nil {
+			if !conf.FilterPathRegexp.MatchString(item.GetFullPath()) {
+				continue
+			}
+		}
 
 		itemId, err := getItemIdentity(item, conf)
 		if err != nil {
@@ -102,21 +116,20 @@ func waitForWorkers(workers []*statMapper) error {
 
 func getItemIdentity(item *util.AqlItem, conf *RepoStatConfiguration) (string, error) {
 	switch conf.Type {
-	case "repo":
+	case TypeRepo:
 		return item.Repo, nil
-	case "folder":
+	case TypeFolder:
 		fullPath := item.GetFullPath()
 		pathParts := strings.Split(fullPath, "/")
-		//TODO: Make folder depth configurable
-		if len(pathParts) <= 4 {
+		if len(pathParts) <= conf.MaxDepth {
 			return strings.Join(pathParts[:len(pathParts)-1], "/"), nil
 		} else {
-			return strings.Join(pathParts[:4], "/"), nil
+			return strings.Join(pathParts[:conf.MaxDepth], "/"), nil
 		}
 		return "", errors.New("Not implemented")
-	case "artifact":
+	case TypeArtifact:
 		return item.GetFullPath(), nil
-	case "user":
+	case TypeUser:
 		return item.ModifiedBy, nil
 	default:
 		return "", errors.New("Invalid type")
@@ -125,6 +138,10 @@ func getItemIdentity(item *util.AqlItem, conf *RepoStatConfiguration) (string, e
 
 func reduce(workers []*statMapper, conf *RepoStatConfiguration) ([]StatItem, error) {
 	log.Debug(fmt.Sprintf("Reducing results from %v mappers...", len(workers)))
+
+	if len(workers) == 0 {
+		return nil, nil
+	}
 
 	mergedResults := workers[0].Result
 

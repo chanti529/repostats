@@ -12,9 +12,7 @@ const (
 	//TODO: Add additional filters to AQL
 	//TODO: Support multiple repos
 	// We cannot paginate this query since it relies on fields from stat subdomain
-	aqlDownloadTemplate = `items.find({
-			"repo": "%s" 
-		}).include("repo", "path", "name", "modified", "modified_by", "stat.downloads", "stat.downloaded")`
+	aqlDownloadTemplate = `items.find(%s).include("repo", "path", "name", "modified", "modified_by", "stat.downloads", "stat.downloaded")`
 )
 
 func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
@@ -23,7 +21,18 @@ func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 		return nil, err
 	}
 
-	aql := fmt.Sprintf(aqlDownloadTemplate, conf.Repos[0])
+	aqlCriteria := util.AqlSearchCriteria{
+		Repos:              conf.Repos,
+		PropertyFilter:     conf.FilterProperties,
+		LastDownloadedFrom: conf.LastDownloadedFrom,
+		LastDownloadedTo:   conf.LastDownloadedTo,
+	}
+
+	criteriaJson, err := aqlCriteria.GetJson()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create AQL criteria: %w", err)
+	}
+	aql := fmt.Sprintf(aqlDownloadTemplate, criteriaJson)
 
 	reader, err := servicesManager.Aql(aql)
 	if err != nil {
@@ -41,13 +50,8 @@ func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	}
 
 	itemsCount := len(parsedResult.Results)
-
-	// TODO: Make page size configurable
-	pageSize := 50000
-
-	// TODO: Make number of workers configurable
-	numberOfWorkers := 5
-	workersLock := make(chan bool, numberOfWorkers)
+	pageSize := conf.PageSize
+	workersLock := make(chan bool, conf.MaxConcurrentWorkers)
 
 	var mapperWorkers []*statMapper
 	getValueFunc := func(item *util.AqlItem) int {

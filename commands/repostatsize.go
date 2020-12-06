@@ -2,13 +2,11 @@ package commands
 
 import (
 	"errors"
-	"fmt"
 	"github.com/chanti529/jfrog-cli-plugin-template/service"
 	"github.com/chanti529/jfrog-cli-plugin-template/util"
 	"github.com/cheynewallace/tabby"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
 	"strconv"
-	"strings"
 	"text/tabwriter"
 )
 
@@ -36,29 +34,20 @@ func getRepoStatSizeArguments() []components.Argument {
 }
 
 func getRepoStatSizeFlags() []components.Flag {
-	// TODO: Setup additional flags
-	return []components.Flag{
+	flags := []components.Flag{
 		components.StringFlag{
-			Name:         "server-id",
-			Description:  "Artifactory server ID configured using the config command.",
+			Name:         "modifiedfrom",
+			Description:  "Filter artifacts modified after given timestamp in format RFC3339.",
 			DefaultValue: "",
 		},
 		components.StringFlag{
-			Name:         "repos",
-			Description:  "Comma separated list of repositories.",
+			Name:         "modifiedto",
+			Description:  "Filter artifacts modified before given timestamp in format RFC3339.",
 			DefaultValue: "",
-		},
-		components.StringFlag{
-			Name:         "limit",
-			Description:  `Max number or results. Set value to 0 to disable limit`,
-			DefaultValue: "10",
-		},
-		components.StringFlag{
-			Name:         "sort",
-			Description:  "Results order. Valid values: desc, asc, alpha",
-			DefaultValue: "desc",
 		},
 	}
+	flags = append(flags, getCommonFlags()...)
+	return flags
 }
 
 func repoStatSizeCmd(c *components.Context) error {
@@ -66,29 +55,27 @@ func repoStatSizeCmd(c *components.Context) error {
 		return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
 	}
 
-	// TODO: Validate arguments and combinations
-
-	// Get Target Artifactory Configuration
-	targetRtConfig, err := getTargetArtifactoryConfig(c.GetStringFlagValue("server-id"))
-	if err != nil {
-		return fmt.Errorf("Failed to get Artifactory configuration: %w", err)
-	}
-
-	// TODO: Set command configuration
 	conf := service.RepoStatConfiguration{
-		RtDetails: targetRtConfig,
-		Type:      c.Arguments[0],
-		Repos:     strings.Split(c.GetStringFlagValue("repos"), ","),
-		Sort:      c.GetStringFlagValue("sort"),
+		Type: c.Arguments[0],
 	}
 
-	limit, err := getIntFlagValue(c, "limit")
+	err := parseCommonFlags(c, &conf)
 	if err != nil {
 		return err
 	}
-	conf.Limit = limit
 
-	// Execute command
+	modifiedFrom, err := getTimestampFlagValue(c, "modifiedfrom")
+	if err != nil {
+		return err
+	}
+	conf.ModifiedFrom = modifiedFrom
+
+	modifiedTo, err := getTimestampFlagValue(c, "modifiedto")
+	if err != nil {
+		return err
+	}
+	conf.ModifiedTo = modifiedTo
+
 	results, err := service.GetSizeStat(&conf)
 	if err != nil {
 		return err
