@@ -9,8 +9,6 @@ import (
 )
 
 const (
-	//TODO: Add additional filters to AQL
-	//TODO: Support multiple repos
 	// We cannot paginate this query since it relies on fields from stat subdomain
 	aqlDownloadTemplate = `items.find(%s).include("repo", "path", "name", "modified", "modified_by", "stat.downloads", "stat.downloaded")`
 )
