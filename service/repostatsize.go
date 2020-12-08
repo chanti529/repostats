@@ -12,9 +12,7 @@ import (
 const (
 	//TODO: Add additional filters to AQL
 	//TODO: Support multiple repos
-	aqlSizeTemplate = `items.find({
-			"repo": "%s" 
-		}).include("repo", "path", "name", "created", "modified", "modified_by", "size").sort({
+	aqlSizeTemplate = `items.find(%s).include("repo", "path", "name", "created", "modified", "modified_by", "size").sort({
 			"$asc":["created"]
 		})`
 )
@@ -25,14 +23,21 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 		return nil, err
 	}
 
-	aql := fmt.Sprintf(aqlSizeTemplate, conf.Repos[0])
+	aqlCriteria := util.AqlSearchCriteria{
+		Repos:          conf.Repos,
+		PropertyFilter: conf.FilterProperties,
+		ModifiedFrom:   conf.ModifiedFrom,
+		ModifiedTo:     conf.ModifiedTo,
+	}
 
-	// TODO: Make page size configurable
-	pageSize := 50000
+	criteriaJson, err := aqlCriteria.GetJson()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create AQL criteria: %w", err)
+	}
+	aql := fmt.Sprintf(aqlSizeTemplate, criteriaJson)
 
-	// TODO: Make number of workers configurable
-	numberOfWorkers := 5
-	workersLock := make(chan bool, numberOfWorkers)
+	pageSize := conf.PageSize
+	workersLock := make(chan bool, conf.MaxConcurrentWorkers)
 
 	var mapperWorkers []*statMapper
 	getValueFunc := func(item *util.AqlItem) int {
@@ -42,6 +47,7 @@ func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
 	itemsCount := 0
 	// Set itemsInPage with pageSize to force first page to be fetched
 	itemsInPage := pageSize
+
 	for itemsInPage == pageSize {
 
 		// Query page results

@@ -2,14 +2,11 @@ package commands
 
 import (
 	"errors"
-	"fmt"
 	"github.com/chanti529/jfrog-cli-plugin-template/service"
 	"github.com/chanti529/jfrog-cli-plugin-template/util"
 	"github.com/cheynewallace/tabby"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
-	"github.com/jfrog/jfrog-cli-core/utils/config"
 	"strconv"
-	"strings"
 	"text/tabwriter"
 )
 
@@ -27,8 +24,6 @@ func GetRepoStatDownloadCommand() components.Command {
 	}
 }
 
-// TODO: Create size command
-
 func getRepoStatDownloadArguments() []components.Argument {
 	return []components.Argument{
 		{
@@ -40,28 +35,20 @@ func getRepoStatDownloadArguments() []components.Argument {
 
 func getRepoStatDownloadFlags() []components.Flag {
 	// TODO: Setup additional flags
-	return []components.Flag{
+	flags := []components.Flag{
 		components.StringFlag{
-			Name:         "server-id",
-			Description:  "Artifactory server ID configured using the config command.",
+			Name:         "lastdownloadedfrom",
+			Description:  "Filter artifacts last downloaded after given timestamp in RFC3339 format.",
 			DefaultValue: "",
 		},
 		components.StringFlag{
-			Name:         "repos",
-			Description:  "Comma separated list of repositories.",
+			Name:         "lastdownloadedto",
+			Description:  "Filter artifacts last downloaded before given timestamp in RFC3339 format.",
 			DefaultValue: "",
-		},
-		components.StringFlag{
-			Name:         "limit",
-			Description:  `Max number or results. Set value to 0 to disable limit`,
-			DefaultValue: "10",
-		},
-		components.StringFlag{
-			Name:         "sort",
-			Description:  "Results order. Valid values: desc, asc, alpha",
-			DefaultValue: "desc",
 		},
 	}
+	flags = append(flags, getCommonFlags()...)
+	return flags
 }
 
 func repoStatDownloadCmd(c *components.Context) error {
@@ -69,29 +56,27 @@ func repoStatDownloadCmd(c *components.Context) error {
 		return errors.New("Wrong number of arguments. Expected: 1, " + "Received: " + strconv.Itoa(len(c.Arguments)))
 	}
 
-	// TODO: Validate arguments and combinations
-
-	// Get Target Artifactory Configuration
-	targetRtConfig, err := getTargetArtifactoryConfig(c.GetStringFlagValue("server-id"))
-	if err != nil {
-		return fmt.Errorf("Failed to get Artifactory configuration: %w", err)
-	}
-
-	// TODO: Set command configuration
 	conf := service.RepoStatConfiguration{
-		RtDetails: targetRtConfig,
-		Type:      c.Arguments[0],
-		Repos:     strings.Split(c.GetStringFlagValue("repos"), ","),
-		Sort:      c.GetStringFlagValue("sort"),
+		Type: c.Arguments[0],
 	}
 
-	limit, err := getIntFlagValue(c, "limit")
+	err := parseCommonFlags(c, &conf)
 	if err != nil {
 		return err
 	}
-	conf.Limit = limit
 
-	// Execute command
+	lastDownloadedFrom, err := getTimestampFlagValue(c, "lastdownloadedfrom")
+	if err != nil {
+		return err
+	}
+	conf.LastDownloadedFrom = lastDownloadedFrom
+
+	lastDownloadedTo, err := getTimestampFlagValue(c, "lastdownloadedto")
+	if err != nil {
+		return err
+	}
+	conf.LastDownloadedTo = lastDownloadedTo
+
 	results, err := service.GetDownloadStat(&conf)
 	if err != nil {
 		return err
@@ -105,13 +90,4 @@ func repoStatDownloadCmd(c *components.Context) error {
 	}
 	t.Print()
 	return nil
-}
-
-func getTargetArtifactoryConfig(serverName string) (*config.ArtifactoryDetails, error) {
-	return config.GetArtifactorySpecificConfig(serverName, true, false)
-}
-
-func getIntFlagValue(c *components.Context, flagName string) (int, error) {
-	limit := c.GetStringFlagValue(flagName)
-	return strconv.Atoi(limit)
 }
