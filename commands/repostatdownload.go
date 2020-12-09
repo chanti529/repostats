@@ -13,11 +13,10 @@ import (
 func GetRepoStatDownloadCommand() components.Command {
 	return components.Command{
 		Name:        "download",
-		Description: "Get repo download statistics.",
+		Description: "Get repo download count statistics.",
 		Aliases:     []string{"d"},
 		Arguments:   getRepoStatDownloadArguments(),
 		Flags:       getRepoStatDownloadFlags(),
-		//EnvVars:     getHelloEnvVar(),
 		Action: func(c *components.Context) error {
 			return repoStatDownloadCmd(c)
 		},
@@ -34,7 +33,6 @@ func getRepoStatDownloadArguments() []components.Argument {
 }
 
 func getRepoStatDownloadFlags() []components.Flag {
-	// TODO: Setup additional flags
 	flags := []components.Flag{
 		components.StringFlag{
 			Name:         "lastdownloadedfrom",

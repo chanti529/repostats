@@ -10,8 +10,6 @@ import (
 )
 
 const (
-	//TODO: Add additional filters to AQL
-	//TODO: Support multiple repos
 	aqlSizeTemplate = `items.find(%s).include("repo", "path", "name", "created", "modified", "modified_by", "size").sort({
 			"$asc":["created"]
 		})`

@@ -13,11 +13,10 @@ import (
 func GetRepoStatSizeCommand() components.Command {
 	return components.Command{
 		Name:        "size",
-		Description: "Get repo size statistics.",
+		Description: "Get repo size statistics in bytes.",
 		Aliases:     []string{"s"},
 		Arguments:   getRepoStatSizeArguments(),
 		Flags:       getRepoStatSizeFlags(),
-		//EnvVars:     getHelloEnvVar(),
 		Action: func(c *components.Context) error {
 			return repoStatSizeCmd(c)
 		},

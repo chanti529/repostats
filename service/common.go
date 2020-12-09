@@ -233,8 +233,11 @@ func removeEmptyPositions(results []StatItem) []StatItem {
 		}
 	}
 
-	if emptyIndex > 0 {
+	if emptyIndex == 0 {
+		return nil
+	} else if emptyIndex > 0 {
 		return results[:emptyIndex]
+	} else {
+		return results
 	}
-	return results
 }

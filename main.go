@@ -14,7 +14,7 @@ func getApp() components.App {
 	app := components.App{}
 	app.Name = "repostat"
 	app.Description = "Get Artifacts statistics."
-	app.Version = "v0.1.0"
+	app.Version = "v1.0.0"
 	app.Commands = getCommands()
 	return app
 }
