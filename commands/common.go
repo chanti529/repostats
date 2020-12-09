@@ -2,8 +2,8 @@ package commands
 
 import (
 	"fmt"
-	"github.com/chanti529/jfrog-cli-plugin-template/service"
-	"github.com/chanti529/jfrog-cli-plugin-template/util"
+	"github.com/chanti529/repostats/service"
+	"github.com/chanti529/repostats/util"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
 	"github.com/jfrog/jfrog-cli-core/utils/config"
 	"regexp"
