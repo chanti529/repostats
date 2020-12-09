@@ -12,7 +12,7 @@ func main() {
 
 func getApp() components.App {
 	app := components.App{}
-	app.Name = "repostat"
+	app.Name = "repostats"
 	app.Description = "Get Artifacts statistics."
 	app.Version = "v1.0.0"
 	app.Commands = getCommands()
