@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/chanti529/jfrog-cli-plugin-template/commands"
+	"github.com/chanti529/repostats/commands"
 	"github.com/jfrog/jfrog-cli-core/plugins"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
 )
