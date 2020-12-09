@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/chanti529/jfrog-cli-plugin-template/util"
+	"github.com/chanti529/repostats/util"
 	"github.com/jfrog/jfrog-cli-core/utils/config"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"regexp"
