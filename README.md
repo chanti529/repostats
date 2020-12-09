@@ -3,7 +3,7 @@
 ## About this plugin
 This plugin utilizes the statistical metadata of the Artifacts that is implicitly generated and maintained by Artifactory. These statisctics provide insights into Artifactory utilization and can help organizations to implement checks, chargeback Users/Teams, perform cleanups and analyse the consumption of resources.
 
-This can help Users to find out the most poularly downlaoded Artifacts in a given repository, Artifacts that are consuming the most space in a given Repository with variosu levels of customization avaialble. Results obtained can also be sorted and filtered. 
+This can help Users to find out the most poularly downlaoded Artifacts in a given repository, Artifacts that are consuming the most space in a given Repository with various levels of customization avaialble. Results obtained can also be sorted and filtered. 
 
 ## Installation with JFrog CLI
 Since this plugin is currently not included in [JFrog CLI Plugins Registry](https://github.com/jfrog/jfrog-cli-plugins-reg), it needs to be built and installed manually. Follow these steps to install and use this plugin with JFrog CLI.
