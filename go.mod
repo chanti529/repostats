@@ -1,4 +1,4 @@
-module github.com/chanti529/jfrog-cli-plugin-template
+module github.com/chanti529/repostats
 
 go 1.14
 
