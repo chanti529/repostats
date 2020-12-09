@@ -43,7 +43,7 @@ This command gives the info about the size of an Artifact/Folder/Repository in B
         - max-depth: [Default: 4] Max depth to group folders when using folder command type
     - Examples:
     ```
-    $ jfrog repostats download -repos jcenter-remote -path .+.jar -properties build.number=15
+    $ jfrog repostats download artifact -repos jcenter-remote -path .+.jar
     
     $ jfrog repostats downlaod folder -repos jcenter-remote -path .+.jar -lastdownloadedto 2020-05-12T15:55:00Z -limit 0 -max-depth 2
     
