@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chanti529/jfrog-cli-plugin-template/util"
+	"github.com/chanti529/repostats/util"
 	"github.com/jfrog/jfrog-cli-core/artifactory/utils"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"io/ioutil"
