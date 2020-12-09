@@ -2,8 +2,8 @@ package commands
 
 import (
 	"errors"
-	"github.com/chanti529/jfrog-cli-plugin-template/service"
-	"github.com/chanti529/jfrog-cli-plugin-template/util"
+	"github.com/chanti529/repostats/service"
+	"github.com/chanti529/repostats/util"
 	"github.com/cheynewallace/tabby"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
 	"strconv"
