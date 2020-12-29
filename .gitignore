@@ -17,3 +17,4 @@ jfrog-cli-plugin-template
 # IOS
 *.DS_Store
 curl-frog
+pipelines/repostats.code-workspace
