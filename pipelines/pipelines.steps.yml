@@ -1,0 +1,53 @@
+pipelines:
+  - name: go_build_pipeline_repostats
+    steps:
+      # Build the Go sample app from the GitRepo
+      - name: build_go
+        type: GoBuild
+        configuration:
+          environmentVariables:
+            JFROG_CLI_BUILD_NAME: go_repostats_build_publish
+          sourceLocation: .
+          repository: myrepo-go
+          outputLocation: /tmp/dist
+          outputFile: repostats_gb
+          inputResources:
+            - name: jfrogcli_repostats
+          integrations:
+            - name: Artifactory
+             
+      # Publish the Go sample app binary to Artifactory
+      - name: publish_go_binary
+        type: GoPublishBinary
+        configuration:
+          inputSteps:
+            - name: build_go
+          targetRepository: myrepo-go
+          integrations:
+            - name: Artifactory
+             
+      # Publish the Go sample app build info
+      - name: publish_build
+        type: PublishBuildInfo
+        configuration:
+          inputSteps:
+            - name: publish_go_binary
+          outputResources:
+            - name: go_build_info_publish
+             
+      # Publish the Go module from the GitRepo
+      - name: publish_go_module
+        type: GoPublishModule
+        configuration:
+          environmentVariables:
+            JFROG_CLI_BUILD_NAME: go_repostats_module_publish
+          sourceLocation: .
+          version: v0.0.0
+          targetRepository: myrepo-go
+          autoPublishBuildInfo: true
+          integrations:
+            - name: Artifactory
+          inputResources:
+            - name: jfrogcli_repostats
+          outputResources:
+            - name: go_build_info_publish_module

@@ -1,0 +1,21 @@
+resources:
+  # Sample Go app in a GitRepo
+  - name: jfrogcli_repostats
+    type: GitRepo
+    configuration:
+      path: chanti529/repostats
+      branches:
+        include: main
+      gitProvider: GitHub
+       
+  # Build info for the published Go module
+  - name: go_build_info_publish_module
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: Artifactory
+       
+  # Build info for the published Go app
+  - name: go_build_info_publish
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: Artifactory
