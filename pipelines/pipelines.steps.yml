@@ -8,7 +8,7 @@ pipelines:
           environmentVariables:
             JFROG_CLI_BUILD_NAME: go_repostats_build_publish
           sourceLocation: .
-          repository: myrepo-go
+          repository: go
           outputLocation: /tmp/dist
           outputFile: repostats_gb
           inputResources:
@@ -22,7 +22,7 @@ pipelines:
         configuration:
           inputSteps:
             - name: build_go
-          targetRepository: myrepo-go
+          targetRepository: go
           integrations:
             - name: Artifactory
              
@@ -43,7 +43,7 @@ pipelines:
             JFROG_CLI_BUILD_NAME: go_repostats_module_publish
           sourceLocation: .
           version: v0.0.0
-          targetRepository: myrepo-go
+          targetRepository: go
           autoPublishBuildInfo: true
           integrations:
             - name: Artifactory
