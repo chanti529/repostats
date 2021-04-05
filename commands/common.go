@@ -124,8 +124,8 @@ func parseCommonFlags(c *components.Context, conf *service.RepoStatConfiguration
 	return nil
 }
 
-func getTargetArtifactoryConfig(serverName string) (*config.ArtifactoryDetails, error) {
-	return config.GetArtifactorySpecificConfig(serverName, true, false)
+func getTargetArtifactoryConfig(serverName string) (*config.ServerDetails, error) {
+	return config.GetSpecificConfig(serverName, true, false)
 }
 
 func getIntFlagValue(c *components.Context, flagName string) (int, error) {

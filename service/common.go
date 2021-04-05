@@ -30,7 +30,7 @@ type StatItem struct {
 type RepoStatConfiguration struct {
 	PageSize             int
 	MaxConcurrentWorkers int
-	RtDetails            *config.ArtifactoryDetails
+	RtDetails            *config.ServerDetails
 	Type                 string
 	MaxDepth             int
 	Repos                []string
