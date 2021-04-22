@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/chanti529/repostats/util"
-	"github.com/jfrog/jfrog-cli-core/artifactory/utils"
+	"github.com/jfrog/jfrog-client-go/artifactory"
 	"io/ioutil"
 )
 
@@ -13,12 +13,7 @@ const (
 	aqlDownloadTemplate = `items.find(%s).include("repo", "path", "name", "modified", "modified_by", "stat.downloads", "stat.downloaded")`
 )
 
-func GetDownloadStat(conf *RepoStatConfiguration) ([]StatItem, error) {
-	servicesManager, err := utils.CreateServiceManager(conf.RtDetails, false)
-	if err != nil {
-		return nil, err
-	}
-
+func GetDownloadStat(conf *RepoStatConfiguration, servicesManager artifactory.ArtifactoryServicesManager) ([]StatItem, error) {
 	aqlCriteria := util.AqlSearchCriteria{
 		Repos:              conf.Repos,
 		PropertyFilter:     conf.FilterProperties,

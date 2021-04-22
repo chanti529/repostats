@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/chanti529/repostats/util"
-	"github.com/jfrog/jfrog-cli-core/artifactory/utils"
+	"github.com/jfrog/jfrog-client-go/artifactory"
 	"github.com/jfrog/jfrog-client-go/utils/log"
 	"io/ioutil"
 )
@@ -15,12 +15,7 @@ const (
 		})`
 )
 
-func GetSizeStat(conf *RepoStatConfiguration) ([]StatItem, error) {
-	servicesManager, err := utils.CreateServiceManager(conf.RtDetails, false)
-	if err != nil {
-		return nil, err
-	}
-
+func GetSizeStat(conf *RepoStatConfiguration, servicesManager artifactory.ArtifactoryServicesManager) ([]StatItem, error) {
 	aqlCriteria := util.AqlSearchCriteria{
 		Repos:          conf.Repos,
 		PropertyFilter: conf.FilterProperties,
