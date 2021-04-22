@@ -5,6 +5,7 @@ import (
 	"github.com/chanti529/repostats/service"
 	"github.com/chanti529/repostats/util"
 	"github.com/cheynewallace/tabby"
+	"github.com/jfrog/jfrog-cli-core/artifactory/utils"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
 	"strconv"
 	"text/tabwriter"
@@ -75,7 +76,12 @@ func repoStatDownloadCmd(c *components.Context) error {
 	}
 	conf.LastDownloadedTo = lastDownloadedTo
 
-	results, err := service.GetDownloadStat(&conf)
+	servicesManager, err := utils.CreateServiceManager(conf.RtDetails, false)
+	if err != nil {
+		return err
+	}
+
+	results, err := service.GetDownloadStat(&conf, servicesManager)
 	if err != nil {
 		return err
 	}

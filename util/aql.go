@@ -85,7 +85,7 @@ type AqlItem struct {
 	Size       int            `json:"size"`
 	Modified   time.Time      `json:"modified"`
 	ModifiedBy string         `json:"modified_by"`
-	Stats      []aqlItemStats `json:"stats"`
+	Stats      []AqlItemStats `json:"stats"`
 }
 
 func (i *AqlItem) GetFullPath() string {
@@ -96,7 +96,7 @@ func (i *AqlItem) GetFullPath() string {
 	}
 }
 
-type aqlItemStats struct {
+type AqlItemStats struct {
 	Downloads  int       `json:"downloads"`
 	Downloaded time.Time `json:"downloaded"`
 }

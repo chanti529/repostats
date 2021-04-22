@@ -5,6 +5,7 @@ import (
 	"github.com/chanti529/repostats/service"
 	"github.com/chanti529/repostats/util"
 	"github.com/cheynewallace/tabby"
+	"github.com/jfrog/jfrog-cli-core/artifactory/utils"
 	"github.com/jfrog/jfrog-cli-core/plugins/components"
 	"strconv"
 	"text/tabwriter"
@@ -75,7 +76,12 @@ func repoStatSizeCmd(c *components.Context) error {
 	}
 	conf.ModifiedTo = modifiedTo
 
-	results, err := service.GetSizeStat(&conf)
+	servicesManager, err := utils.CreateServiceManager(conf.RtDetails, false)
+	if err != nil {
+		return err
+	}
+
+	results, err := service.GetSizeStat(&conf, servicesManager)
 	if err != nil {
 		return err
 	}

@@ -126,7 +126,6 @@ func getItemIdentity(item *util.AqlItem, conf *RepoStatConfiguration) (string, e
 		} else {
 			return strings.Join(pathParts[:conf.MaxDepth], "/"), nil
 		}
-		return "", errors.New("Not implemented")
 	case TypeArtifact:
 		return item.GetFullPath(), nil
 	case TypeUser:
