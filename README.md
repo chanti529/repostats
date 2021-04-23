@@ -46,11 +46,11 @@ This command gives the info about the size of an Artifact/Folder/Repository in B
         - max-depth: [Default: 4] Max depth to group folders when using folder command type
     - Examples:
     ```
-    $ jfrog repostats download artifact -repos jcenter-remote -path .+.jar
+    $ jfrog repostats download artifact --repos jcenter-remote --path .+.jar
     
-    $ jfrog repostats downlaod folder -repos jcenter-remote -path .+.jar -lastdownloadedto 2020-05-12T15:55:00Z -limit 0 -max-depth 2
+    $ jfrog repostats downlaod folder --repos jcenter-remote --path .+.jar --lastdownloadedto 2020-05-12T15:55:00Z --limit 0 --max-depth 2
     
-    $ jfrog repostats download user -repos jcenter-remote -path .+.jar -lastdownloadedto 2020-05-12T15:55:00Z -limit 0
+    $ jfrog repostats download user --repos jcenter-remote --path .+.jar --lastdownloadedto 2020-05-12T15:55:00Z --limit 0
 
     ```
 
@@ -71,7 +71,7 @@ This command gives the info about the size of an Artifact/Folder/Repository in B
         - max-depth:    [Default: 4] Max depth to group folders when using folder command type
     - Examples:
     ```
-    $ jfrog repostats size artifact -repos maven-local -path .+.jar
+    $ jfrog repostats size artifact --repos maven-local --path .+.jar
 
     ```
 
