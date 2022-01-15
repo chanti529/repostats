@@ -8,15 +8,15 @@ This can help Users to find out the most poularly downlaoded Artifacts in a give
 ## Installation with JFrog CLI
 Installing the latest version:
 
-`$ jfrog plugin install repostats`
+`$ jf plugin install repostats`
 
 Installing a specific version:
 
-`$ jfrog plugin install repostats@version`
+`$ jf plugin install repostats@version`
 
 Uninstalling a plugin
 
-`$ jfrog plugin uninstall repostats`
+`$ jf plugin uninstall repostats`
 
 ## download command - Download Count statistics
 This command provides the download count statistics on a Repository/Folder path/Artifact level with an option to filter the results based on the properties and last downloaded timestamp or interval. It also provides the option to select the server id of the interested Artifactory instance.
@@ -46,11 +46,11 @@ This command gives the info about the size of an Artifact/Folder/Repository in B
         - max-depth: [Default: 4] Max depth to group folders when using folder command type
     - Examples:
     ```
-    $ jfrog repostats download artifact --repos jcenter-remote --path .+.jar
+    $ jf repostats download artifact --repos jcenter-remote --path .+.jar
     
-    $ jfrog repostats downlaod folder --repos jcenter-remote --path .+.jar --lastdownloadedto 2020-05-12T15:55:00Z --limit 0 --max-depth 2
+    $ jf repostats downlaod folder --repos jcenter-remote --path .+.jar --lastdownloadedto 2020-05-12T15:55:00Z --limit 0 --max-depth 2
     
-    $ jfrog repostats download user --repos jcenter-remote --path .+.jar --lastdownloadedto 2020-05-12T15:55:00Z --limit 0
+    $ jf repostats download user --repos jcenter-remote --path .+.jar --lastdownloadedto 2020-05-12T15:55:00Z --limit 0
 
     ```
 
@@ -71,7 +71,7 @@ This command gives the info about the size of an Artifact/Folder/Repository in B
         - max-depth:    [Default: 4] Max depth to group folders when using folder command type
     - Examples:
     ```
-    $ jfrog repostats size artifact --repos maven-local --path .+.jar
+    $ jf repostats size artifact --repos maven-local --path .+.jar
 
     ```
 
