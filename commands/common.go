@@ -2,14 +2,15 @@ package commands
 
 import (
 	"fmt"
-	"github.com/chanti529/repostats/service"
-	"github.com/chanti529/repostats/util"
-	"github.com/jfrog/jfrog-cli-core/plugins/components"
-	"github.com/jfrog/jfrog-cli-core/utils/config"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/chanti529/repostats/service"
+	"github.com/chanti529/repostats/util"
+	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
+	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
 )
 
 func getCommonFlags() []components.Flag {

@@ -3,12 +3,13 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/chanti529/repostats/util"
-	"github.com/jfrog/jfrog-cli-core/utils/config"
-	"github.com/jfrog/jfrog-client-go/utils/log"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/chanti529/repostats/util"
+	"github.com/jfrog/jfrog-cli-core/v2/utils/config"
+	"github.com/jfrog/jfrog-client-go/utils/log"
 )
 
 const (

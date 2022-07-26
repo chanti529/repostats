@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/chanti529/repostats/commands"
-	"github.com/jfrog/jfrog-cli-core/plugins"
-	"github.com/jfrog/jfrog-cli-core/plugins/components"
+	"github.com/jfrog/jfrog-cli-core/v2/plugins"
+	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func getApp() components.App {
 	app := components.App{}
 	app.Name = "repostats"
 	app.Description = "Get Artifacts statistics."
-	app.Version = "v1.0.2"
+	app.Version = "v1.0.3"
 	app.Commands = getCommands()
 	return app
 }

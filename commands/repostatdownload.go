@@ -8,8 +8,8 @@ import (
 	"github.com/chanti529/repostats/service"
 	"github.com/chanti529/repostats/util"
 	"github.com/cheynewallace/tabby"
-	"github.com/jfrog/jfrog-cli-core/artifactory/utils"
-	"github.com/jfrog/jfrog-cli-core/plugins/components"
+	"github.com/jfrog/jfrog-cli-core/v2/artifactory/utils"
+	"github.com/jfrog/jfrog-cli-core/v2/plugins/components"
 )
 
 func GetRepoStatDownloadCommand() components.Command {
@@ -77,7 +77,7 @@ func repoStatDownloadCmd(c *components.Context) error {
 	}
 	conf.LastDownloadedTo = lastDownloadedTo
 
-	servicesManager, err := utils.CreateServiceManager(conf.RtDetails, 5, false)
+	servicesManager, err := utils.CreateServiceManager(conf.RtDetails, 5, 200, false)
 	if err != nil {
 		return err
 	}
