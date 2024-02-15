@@ -31,7 +31,7 @@ This command gives the info about the size of an Artifact/Folder/Repository in B
 ### Commands
 * download - Get repo download count statistics.
     - Arguments:
-        - type - Type of component to get statistics. Valid values: artifact, folder, repos, user
+        - type - Type of component to get statistics. Valid values: artifact, folder, repo, user
     - Options:
         - repos: [Mandatory] Comma separated list of repositories.
         - path: [Optional] Regular Expression to filter the full path of artifacts.
